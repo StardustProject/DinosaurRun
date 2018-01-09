@@ -179,7 +179,40 @@ var WRGame = function () {
 
 		presentGroup.collided = false;
 
+		/*胡俊钦
+		* 2018/1/9
+		* 实现改变灯光效果的功能*/
 
+		// begin
+		var controls = new function () {
+			this.hemisphere = true;
+			this.groundColor = 0x00ff00;
+			this.skyColor = 0x0000ff;
+			this.intensity = 0.6;
+
+		};
+		
+		var gui = new dat.GUI();
+
+		gui.add(controls, 'hemisphere').onChange(function (e) {
+
+			if (!e) {
+				hemisphereLight.intensity = 0;
+			} else {
+				hemisphereLight.intensity = controls.intensity;
+			}
+		});
+		gui.addColor(controls, 'groundColor').onChange(function (e) {
+			hemisphereLight.groundColor = new THREE.Color(e);
+		});
+		gui.addColor(controls, 'skyColor').onChange(function (e) {
+			hemisphereLight.color = new THREE.Color(e);
+		});
+		gui.add(controls, 'intensity', 0, 5).onChange(function (e) {
+			hemisphereLight.intensity = e;
+		});
+		//end
+		
 		WRSnow.init();
 
 		setFloorHeight();
