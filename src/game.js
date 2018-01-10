@@ -1,8 +1,3 @@
-/**
-	Winter Rush Game
-	Handles track, trees, motion, hit detection
-	by Felix Turner / @felixturner / www.airtight.cc
-**/
 
 var WRGame = function () {
 
@@ -19,8 +14,8 @@ var WRGame = function () {
 	var FLOOR_THICKNESS = 300;
 
 	var stepCount = 0;
-	var moveSpeed = 0; //z distance per second
-	var maxSpeed; //increments over time
+	var moveSpeed = 0; //z方向移动速度
+	var maxSpeed; //速度随时间的推移增大
 	var slideSpeed = 0;
 	var sliding = false;
 
@@ -49,18 +44,19 @@ var WRGame = function () {
 
 		clock = new THREE.Clock();
 
-		//lights
-		//HemisphereLight(skyColorHex, groundColorHex, intensity)
+		//灯光
+
+		//户外光照 HemisphereLight(skyColorHex, groundColorHex, intensity)
 		var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.6);
 		WRMain.getScene().add(hemisphereLight);
 		hemisphereLight.position.y = 300;
 
-		//middle light
+		//中心光（点光源）
 		var centerLight = new THREE.PointLight(0xFFFFFF, 0.8, 4500);
 		WRMain.getScene().add(centerLight);
 		centerLight.position.z = WRConfig.FLOOR_DEPTH / 4;
 		centerLight.position.y = 500;
-
+		//前向光（点光源）
 		var frontLight = new THREE.PointLight(0xFFFFFF, 1, 2500);
 		WRMain.getScene().add(frontLight);
 		frontLight.position.z = WRConfig.FLOOR_DEPTH / 2;
@@ -68,17 +64,16 @@ var WRGame = function () {
 		moverGroup = new THREE.Object3D();
 		WRMain.getScene().add(moverGroup);
 
-		//make floor
+		//构建地面
 		var floorGroup = new THREE.Object3D();
 
 		var floorMaterial = new THREE.MeshLambertMaterial({
-			color: 0xCCCCCC, //diffuse							
+			color: 0xCCCCCC, //diffuse
 			emissive: 0x000000,
 			shading: THREE.FlatShading,
 			side: THREE.DoubleSide,
 		});
 
-		//add extra x width
 		floorGeometry = new THREE.PlaneGeometry(WRConfig.FLOOR_WIDTH + 1200, WRConfig.FLOOR_DEPTH, FLOOR_RES, FLOOR_RES);
 		var floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
 		floorGroup.add(floorMesh);
@@ -312,18 +307,18 @@ var WRGame = function () {
 
 		var delta = clock.getDelta();
 
-		//PLAYER MOVEMENT
+		//游戏视觉的移动
 		if (playing) {
 
-			//max speed accelerates slowly
+			//速度渐增
 			maxSpeed += delta * MAX_SPEED_ACCEL;
 			maxSpeed = Math.min(maxSpeed, FINAL_MAX_SPEED);
 
-			//move speed accelerates quickly after a collision
+			//碰撞后小幅加速
 			moveSpeed += delta * ACCEL;
 			moveSpeed = Math.min(moveSpeed, maxSpeed);
 
-			//right takes precedence
+			//控制按键
 			if (rightDown) {
 
 				slideSpeed += SIDE_ACCEL;
@@ -349,12 +344,11 @@ var WRGame = function () {
 
 			WRMain.getCamera().position.x += delta * slideSpeed;
 
-			//TILT
-			//moverGroup.rotation.z = 0.016 * slideSpeed * 0.003;
-			moverGroup.rotation.z = slideSpeed * 0.000038;
+			//略微倾斜
+			moverGroup.rotation.z = slideSpeed * 0.000000001;
 
 		} else {
-			//slow down after dead
+			//死亡后减速
 			moveSpeed *= 0.95;
 
 		}
@@ -367,14 +361,13 @@ var WRGame = function () {
 		moverGroup.position.z += delta * moveSpeed;
 
 		if (moverGroup.position.z > 0) {
-			//build new strip
+			//刷新赛道
 			setFloorHeight();
 		}
 
 		WRSnow.animate();
 
-		//SIMPLE HIT DETECT
-
+		//碰撞检测
 		if (WRConfig.hitDetect) {
 
 			var p;
@@ -399,7 +392,7 @@ var WRGame = function () {
 				p.y = 0; //ignore tree height
 				p.add(moverGroup.position);
 
-				//can only hit trees if they are in front of you
+				//当树在正前方时发生碰撞
 				if (p.z < camPos.z && p.z > camPos.z - 200) {
 
 					dist = p.distanceTo(camPos);
@@ -419,13 +412,13 @@ var WRGame = function () {
 	function startGame(isFirstGame) {
 
 		acceptInput = false;
-		//if first game just start run
+		//第一次进入游戏
 		if (isFirstGame) {
 			startRun();
 			return;
 		}
 
-		//fade out
+		//淡出
 		TweenMax.fromTo(WRMain.fxParams, 0.3, {
 			brightness: 0
 		}, {
@@ -445,12 +438,12 @@ var WRGame = function () {
 	function resetField() {
 
 		var camPos = WRMain.getCamera().position;
-		//put cam in middle
+		//摄像机重置为中央
 		camPos.x = 0;
-		//set tilt to 0
+		//分数归零
 		slideSpeed = 0;
 		moverGroup.rotation.z = 0;
-		//kill trees that are too close at the start
+		//开始时树设置较远
 		for (i = 0; i < TREE_COUNT; i++) {
 			p = trees[i].position.clone();
 			p.add(moverGroup.position);

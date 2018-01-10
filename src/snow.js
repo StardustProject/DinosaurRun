@@ -1,8 +1,3 @@
-/**
-	Winter Rush Snow
-	Handles falling snow, bars, sky
-	by Felix Turner / @felixturner / www.airtight.cc
-**/
 
 var WRSnow = function () {
 
@@ -24,10 +19,8 @@ var WRSnow = function () {
 
 	function init() {
 
-
-		//make falling snow
+		//构造雪花几何体
 		snowGeometry = new THREE.Geometry();
-
 		var snowSprite = THREE.ImageUtils.loadTexture("res/img/snow.png");
 
 		for (i = 0; i < SNOW_COUNT; i++) {
@@ -41,9 +34,9 @@ var WRSnow = function () {
 
 		}
 
-		var snowMaterial = new THREE.PointCloudMaterial({
+		var snowMaterial = new THREE.PointCloudMaterial({ //创建粒子
 			size: 50,
-			sizeAttenuation: true,
+			sizeAttenuation: true, //近大远小
 			map: snowSprite,
 			transparent: true,
 			blending: THREE.AdditiveBlending,
@@ -52,12 +45,10 @@ var WRSnow = function () {
 			depthWrite: false
 		});
 
-		var particles = new THREE.PointCloud(snowGeometry, snowMaterial);
+		var particles = new THREE.PointCloud(snowGeometry, snowMaterial); //创建点云对象
 		WRGame.getMoverGroup().add(particles);
 
-		//STRIPS
-		//add bars for at high speed
-
+		//高速赛道
 		barMaterial = new THREE.MeshBasicMaterial({
 			color: 0x0FF66FF,
 			blending: THREE.AdditiveBlending,
@@ -96,7 +87,7 @@ var WRSnow = function () {
 
 		}
 
-		//SKY
+		//天空的设置
 		var textureSky = THREE.ImageUtils.loadTexture("res/img/xmas-sky.jpg");
 		skyMaterial = new THREE.MeshBasicMaterial({
 			map: textureSky,
@@ -115,7 +106,6 @@ var WRSnow = function () {
 	}
 
 	function shift() {
-
 
 		for (i = 0; i < SNOW_COUNT; i++) {
 
@@ -142,7 +132,7 @@ var WRSnow = function () {
 
 	function animate() {
 
-		//global perlin wind
+		//风的设置
 		snowTime += 0.001;
 		windStrength = snoise.noise(snowTime, 0, 0) * 20;
 		windDir = (snoise.noise(snowTime + 100, 0, 0) + 1) / 2 * Math.PI * 2;
@@ -150,21 +140,21 @@ var WRSnow = function () {
 		for (i = 0; i < SNOW_COUNT; i++) {
 			var vert = snowGeometry.vertices[i];
 
-			//gravity
+			//重力（下降速度）
 			vert.y -= 3;
 
-			//bounds wrapping
+			//落地后回到最高点
 			if (vert.y < SNOW_BOTTOM) {
 				vert.y = SNOW_TOP;
 			}
 
-			//only do fancy wind if not playing
+			//不在游戏时 fancy wind
 			if (!WRGame.getPlaying()) {
 
 				vert.x += Math.cos(windDir) * windStrength;
 				vert.z += Math.sin(windDir) * windStrength;
 
-				//wrap around edges
+				//边缘环绕运动
 				if (vert.x > WRConfig.FLOOR_WIDTH / 2 + SNOW_EDGE) vert.x = -WRConfig.FLOOR_WIDTH / 2 + SNOW_EDGE;
 				if (vert.x < -WRConfig.FLOOR_WIDTH / 2 + SNOW_EDGE) vert.x = WRConfig.FLOOR_WIDTH / 2 + SNOW_EDGE;
 
