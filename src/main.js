@@ -17,7 +17,7 @@ var WRConfig = {
 
 var WRMain = function () {
 
-	var camera, scene, renderer;
+	var camera, scene, renderer, controls;
 
 	//FX
 	var composer;
@@ -112,6 +112,11 @@ var WRMain = function () {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setClearColor(bkgndColor, 1);
 		$("#container").append(renderer.domElement);
+
+		if (WRConfig.showDebug) {
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls.update();
+		}
 
 		//FX
 		var renderPass = new THREE.RenderPass(scene, camera);
@@ -348,7 +353,7 @@ var WRMain = function () {
 		superPass.uniforms.hue.value = hue;
 		superPass.uniforms.brightness.value = fxParams.brightness;
 		composer.render(0.1);
-
+		
 		//WRMain.trace( WRGame.getSpeed());
 
 	}

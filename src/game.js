@@ -1,4 +1,3 @@
-
 var WRGame = function () {
 
 	var ACCEL = 2000;
@@ -30,6 +29,9 @@ var WRGame = function () {
 	var noiseScale = 3;
 	var noiseSeed = Math.random() * 100;
 
+	var monster;
+	var mixers = [];
+	var monsterGroup;
 	var moverGroup;
 	var presentGroup;
 	var floorGeometry;
@@ -84,11 +86,11 @@ var WRGame = function () {
 		moverGroup.position.z = -WRConfig.MOVE_STEP;
 		floorGroup.position.z = 500;
 
-        /*
-         * 陈龙江
-         * 2018/1/10
-         * 修改树的模型
-         */
+		/*
+		 * 陈龙江
+		 * 2018/1/10
+		 * 修改树的模型
+		 */
 		//make trees
 		var i;
 		treeMaterials = [];
@@ -181,12 +183,44 @@ var WRGame = function () {
 		//PointLight(hex, intensity, distance)
 		var presentLight = new THREE.PointLight(0x2248DD, 1.8, 1000);
 		presentGroup.add(presentLight);
-
 		presentGroup.collided = false;
 
+		/*
+		 * 李永盛
+		 * 2018/1/10
+		 * 加一只怪物
+		 */
+		monsterGroup = new THREE.Object3D();
+		WRMain.getScene().add(monsterGroup);
+
+		var loader = new THREE.JSONLoader();
+		loader.load("res/model/monster/monster.js", function (geometry, materials) {
+			geometry.computeVertexNormals();
+			geometry.computeMorphNormals();
+
+			// adjust color a bit
+			var material = materials[0];
+			material.morphTargets = true;
+			material.morphNormals = true;
+			//material.color.setHex(0xEE6363);
+			material.color.setHex(0xff0000);
+
+			monster = new THREE.Mesh(geometry, materials);
+			monster.position.set(0, -150, WRConfig.FLOOR_DEPTH / 2 - 1200);
+			monster.rotateY(Math.PI / 2);
+			monster.scale.set(0.2, 0.2, 0.2);
+			monsterGroup.add(monster);
+			if (WRConfig.showDebug) {
+				WRMain.getScene().add(new THREE.BoxHelper(monster));
+			}
+			var mixer = new THREE.AnimationMixer(monster);
+			mixer.clipAction(geometry.animations[0], monster).setDuration(1).play();
+			mixers.push(mixer);
+		});
+
 		/*胡俊钦
-		* 2018/1/9
-		* 实现改变灯光效果的功能*/
+		 * 2018/1/9
+		 * 实现改变灯光效果的功能*/
 
 		// begin
 		var controls = new function () {
@@ -196,7 +230,7 @@ var WRGame = function () {
 			this.intensity = 0.6;
 
 		};
-		
+
 		var gui = new dat.GUI();
 
 		gui.add(controls, 'hemisphere').onChange(function (e) {
@@ -217,7 +251,7 @@ var WRGame = function () {
 			hemisphereLight.intensity = e;
 		});
 		//end
-		
+
 		WRSnow.init();
 
 		setFloorHeight();
@@ -341,7 +375,8 @@ var WRGame = function () {
 				WRMain.playCollide();
 			}
 
-
+			// 移动怪物和相机位置
+			monsterGroup.position.x += delta * slideSpeed;
 			WRMain.getCamera().position.x += delta * slideSpeed;
 
 			//略微倾斜
@@ -353,10 +388,13 @@ var WRGame = function () {
 
 		}
 
+		// 更新怪物动作
+		for (var i = 0; i < mixers.length; i++) {
+			mixers[i].update(delta);
+		}
+
 		presentGroup.rotation.x += 0.01;
 		presentGroup.rotation.y += 0.02;
-
-
 
 		moverGroup.position.z += delta * moveSpeed;
 
@@ -374,13 +412,17 @@ var WRGame = function () {
 			var dist;
 
 			var camPos = WRMain.getCamera().position.clone();
-			camPos.z -= 200;
+			camPos.z -= 1200;
 
 			p = presentGroup.position.clone();
 			p.add(moverGroup.position);
 			dist = p.distanceTo(camPos);
 			if (dist < 200 && !presentGroup.collided) {
 				//GOT POINT
+
+				// 把水晶移到视野后
+				presentGroup.position.z = 3700;
+
 				presentGroup.collided = true;
 				WRMain.onScorePoint();
 			}
@@ -442,7 +484,9 @@ var WRGame = function () {
 		camPos.x = 0;
 		//分数归零
 		slideSpeed = 0;
+		//物体位置归零
 		moverGroup.rotation.z = 0;
+		monsterGroup.position.x = 0;
 		//开始时树设置较远
 		for (i = 0; i < TREE_COUNT; i++) {
 			p = trees[i].position.clone();
