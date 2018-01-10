@@ -1,10 +1,5 @@
-/**
-	Winter Rush Main
-	Handles input, sounds, renderer, resize, score display
-	by Felix Turner / @felixturner / www.airtight.cc
-**/
 
-//Global Config
+//全局设置
 var WRConfig = {
 
 	//debug toggles
@@ -14,9 +9,9 @@ var WRConfig = {
 	showDebug: true,
 
 	//const dimensions
-	FLOOR_WIDTH: 3600, // size of floor in x direction
-	FLOOR_DEPTH: 7200, //size of floor in z direction
-	MOVE_STEP: 500 //z distance to move before recreating a new floor strip
+	FLOOR_WIDTH: 3600, //地板宽度 x方向
+	FLOOR_DEPTH: 7200, //地板深度 z方向
+	MOVE_STEP: 500 //刷新一帧之前地板在z方向移动距离
 
 };
 
@@ -78,7 +73,8 @@ var WRMain = function () {
 		$(document).on('keyup', onKeyUp, false);
 		$("#splash").on('mousedown', onMouseDown, false);
 		$("#splash").on('tap', onMouseDown, false);
-
+        $("#game-name").on('mousedown', onMouseDown, false);
+        $("#game-name").on('tap', onMouseDown, false);
 		// if (window.DeviceOrientationEvent) {
 		// 	window.addEventListener('deviceorientation', deviceOrientationHandler, false);
 		// }
@@ -101,8 +97,6 @@ var WRMain = function () {
 				src: ["res/audio/rouet.mp3"],
 				loop: true
 			});
-			$("#music-toggle").on("click", toggleMusic);
-			$("#music-toggle").on("tap", toggleMusic);
 		}
 
 		//init 3D
@@ -138,7 +132,7 @@ var WRMain = function () {
 
 		animate();
 
-		//fade in
+		//淡入
 		TweenMax.fromTo(fxParams, 1, {
 			brightness: -1
 		}, {
@@ -168,11 +162,11 @@ var WRMain = function () {
 
 		//preload splash page images
 		var img1 = new Image();
-		img1.src = "res/img/xmas-splash.png";
+		 img1.src = "res/img/xmas-splash.png";
 		var img2 = new Image();
 		img2.src = "res/img/xmas-best.png";
 		var img3 = new Image();
-		img3.src = "res/img/xmas-wipeout.png";
+		 img3.src = "res/img/xmas-wipeout.png";
 
 	}
 
@@ -260,7 +254,7 @@ var WRMain = function () {
 
 		if (WRConfig.playSound) sndCollide.play();
 
-		//display score
+		//显示分数
 		TweenMax.to($('#score-text'), 0.1, {
 			autoAlpha: 0
 		});
@@ -286,16 +280,16 @@ var WRMain = function () {
 		if (score > hiScore) {
 			splashMode = 1;
 			hiScore = score;
-			$('#splash').css('background-image', 'url(res/img/xmas-best.png)');
-			$('#prompt-big').text("SCORE: " + score);
+			//$('#splash').css('background-image', 'url(res/img/xmas-best.png)');
+			$('#prompt-big').text("新纪录！本次得分: " + score);
 			$('#prompt-small').css('display', 'none');
 			$('#prompt-big').css("margin-top", "10%");
 
 		} else {
 			splashMode = 2;
-			$('#splash').css('background-image', 'url(res/img/xmas-wipeout.png)');
-			$('#prompt-big').text("SCORE: " + score);
-			$('#prompt-small').text("BEST SCORE: " + hiScore);
+			//$('#splash').css('background-image', 'url(res/img/xmas-wipeout.png)');
+			$('#prompt-big').text("本次得分: " + score);
+			$('#prompt-small').text("历史最佳分数: " + hiScore);
 			$('#prompt-small').css('display', 'block');
 			$('#prompt-big').css("margin-top", "8%");
 			$('#prompt-small').css("margin-top", "2%");
@@ -307,6 +301,9 @@ var WRMain = function () {
 	}
 
 	function onGameStart() {
+        TweenMax.to($('#game-name'), 0.3, {
+            autoAlpha: 0
+        });
 		TweenMax.to($('#splash'), 0.3, {
 			autoAlpha: 0
 		});
@@ -397,17 +394,14 @@ var WRMain = function () {
 		lastEvent = null;
 
 		switch (event.keyCode) {
-			case 39:
-				/* RIGHT */
+			case 39://右键
 				WRGame.setRightDown(false);
 				break;
-			case 37:
-				/* LEFT */
+			case 37://左键
 				WRGame.setLeftDown(false);
 				break;
 		}
 
-		//endSlide();
 	}
 
 	function onKeyDown(event) {
@@ -423,12 +417,10 @@ var WRMain = function () {
 		}
 
 		switch (event.keyCode) {
-			case 39:
-				/* RIGHT */
+			case 39://右键
 				WRGame.setRightDown(true);
 				break;
-			case 37:
-				/* LEFT */
+			case 37://左键
 				WRGame.setLeftDown(true);
 				break;
 
@@ -448,14 +440,6 @@ var WRMain = function () {
 		}
 	}
 
-	// function deviceOrientationHandler(eventData) {
-	// 	if (eventData.beta === null) return;
-	// 	var cuttoff = 5;
-	// 	var tiltedRight = eventData.beta > cuttoff;
-	// 	var tiltedLeft = eventData.beta < -cuttoff;
-	// 	WRGame.setRightDown(tiltedRight);
-	// 	WRGame.setLeftDown(tiltedLeft);
-	// }
 
 	return {
 		init: init,
