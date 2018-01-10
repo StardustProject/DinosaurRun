@@ -84,6 +84,11 @@ var WRGame = function () {
 		moverGroup.position.z = -WRConfig.MOVE_STEP;
 		floorGroup.position.z = 500;
 
+        /*
+         * 陈龙江
+         * 2018/1/10
+         * 修改树的模型
+         */
 		//make trees
 		var i;
 		treeMaterials = [];
@@ -108,7 +113,7 @@ var WRGame = function () {
 		});
 
 		trunkGeom = new THREE.CylinderGeometry(50, 50, 200, 8, 1, false);
-		treeGeom = new THREE.CylinderGeometry(0, 250, 1200, 8, 1, false);
+		treeGeom = new THREE.CylinderGeometry(0, 250, 1200, 40, 1, false);
 
 		var tree;
 		for (i = 0; i < TREE_COUNT; i++) {
@@ -143,6 +148,11 @@ var WRGame = function () {
 			tree.position.z = WRConfig.FLOOR_DEPTH * i / EDGE_TREE_COUNT - WRConfig.FLOOR_DEPTH / 2;
 		}
 
+		/*
+		 * 陈龙江
+		 * 2018/1/10
+		 * 修改奖励模型形状、颜色、点光源
+		 */
 		//add floating present
 		presentGroup = new THREE.Object3D();
 		moverGroup.add(presentGroup);
@@ -152,7 +162,7 @@ var WRGame = function () {
 		//presentGroup.position.y = 200;
 
 		var presentMaterial = new THREE.MeshPhongMaterial({
-			color: 0xFF0000,
+			color: 0x1AE6E6,
 			specular: 0x00FFFF,
 			emissive: 0x0000FF,
 			shininess: 60,
@@ -163,13 +173,13 @@ var WRGame = function () {
 			opacity: 1.0
 		});
 
-		var presentGeom = new THREE.TetrahedronGeometry(100, 2);
+		var presentGeom = new THREE.IcosahedronGeometry(100, 2);
 
 		var present = new THREE.Mesh(presentGeom, presentMaterial);
 		presentGroup.add(present);
 
 		//PointLight(hex, intensity, distance)
-		var presentLight = new THREE.PointLight(0xFF00FF, 1.2, 600);
+		var presentLight = new THREE.PointLight(0x2248DD, 1.8, 1000);
 		presentGroup.add(presentLight);
 
 		presentGroup.collided = false;
