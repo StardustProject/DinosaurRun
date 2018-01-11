@@ -232,7 +232,7 @@ var WRGame = function () {
 			this.groundColor = 0x00ff00;
 			this.skyColor = 0x0000ff;
 			this.intensity = 0.6;
-
+            this.treeScale = 1.3;
 		};
 
 		var gui = new dat.GUI();
@@ -255,6 +255,19 @@ var WRGame = function () {
 			hemisphereLight.intensity = e;
 		});
 		//end
+
+        /*
+         * 陈龙江
+         * 2018/1/11
+         * 实现可选树的大小功能
+         */
+        gui.add(controls, 'treeScale', 0.5, 2.0).onChange(function (e) {
+            for (i = 0; i < trees.length; i++) {
+                trees[i].scale.x = trees[i].scale.y = trees[i].scale.z = e;
+                trees[i].myheight = 1400 * trees[i].scale.y;
+                trees[i].position.y = trees[i].myheight / 2 - 300;
+            }
+        });
 
 		WRSnow.init();
 
