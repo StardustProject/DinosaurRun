@@ -58,11 +58,14 @@ var WRGame = function () {
 		WRMain.getScene().add(centerLight);
 		centerLight.position.z = WRConfig.FLOOR_DEPTH / 4;
 		centerLight.position.y = 500;
-		//前向光（点光源）
-		var frontLight = new THREE.PointLight(0xBBBBBB, 1, 2500);
+        /*胡俊钦
+         * 2018/1/11
+         * 修改向前光为平行光源*/
+		//前向光（平行光源）
+		var frontLight = new THREE.DirectionalLight(0xBBBBBB, 1, 2500);
 		WRMain.getScene().add(frontLight);
 		frontLight.position.z = WRConfig.FLOOR_DEPTH / 2;
-
+		
 		moverGroup = new THREE.Object3D();
 		WRMain.getScene().add(moverGroup);
 
@@ -180,8 +183,9 @@ var WRGame = function () {
 		var present = new THREE.Mesh(presentGeom, presentMaterial);
 		presentGroup.add(present);
 
-		//PointLight(hex, intensity, distance)
-		var presentLight = new THREE.PointLight(0x2248DD, 1.8, 1000);
+		//SpotLight(hex, intensity, distance)
+        //聚光光源
+        var presentLight = new THREE.SpotLight(0x2248DD, 1.8, 1000);
 		presentGroup.add(presentLight);
 		presentGroup.collided = false;
 
