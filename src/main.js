@@ -1,30 +1,22 @@
-/**
-	Winter Rush Main
-	Handles input, sounds, renderer, resize, score display
-	by Felix Turner / @felixturner / www.airtight.cc
-**/
 
-//Global Config
+//全局设置
 var WRConfig = {
 
-	//debug toggles
 	playSound: true,
 	playMusic: true,
 	hitDetect: true,
 	showDebug: true,
 
-	//const dimensions
-	FLOOR_WIDTH: 3600, // size of floor in x direction
-	FLOOR_DEPTH: 7200, //size of floor in z direction
-	MOVE_STEP: 500 //z distance to move before recreating a new floor strip
+	FLOOR_WIDTH: 3600, //地板宽度 x方向
+	FLOOR_DEPTH: 7200, //地板深度 z方向
+	MOVE_STEP: 500 //刷新一帧之前地板在z方向移动距离
 
 };
 
 var WRMain = function () {
 
-	var camera, scene, renderer;
+	var camera, scene, renderer, controls;
 
-	//FX
 	var composer;
 	var superPass;
 	var hueTime = 0;
@@ -48,7 +40,7 @@ var WRMain = function () {
 	var bkgndColor = 0x061837;
 	var isMobile = false;
 
-	var splashMode = 0; //0->2 indicating which splash page is showing
+	var splashMode = 0;
 	var isFirstGame = true;
 
 	function init() {
@@ -63,27 +55,15 @@ var WRMain = function () {
 			$("#container").append(stats.domElement);
 		}
 
-		isMobile = !!('ontouchstart' in window); //true for android or ios, false for MS surface
-
-		if (isMobile) {
-			$("#prompt-small").text("Tap to move left or right");
-			$("#info").html("Built with Love by <a href='http://www.airtight.cc'>Airtight</a>.");
-		}
-
-		//INIT CONTROLS
-		$("#container").on('touchstart', onTouchStart, false);
-		$("#container").on('touchend', onTouchEnd, false);
-
+		//初始化玩家控制操作
 		$(document).on('keydown', onKeyDown, false);
 		$(document).on('keyup', onKeyUp, false);
 		$("#splash").on('mousedown', onMouseDown, false);
 		$("#splash").on('tap', onMouseDown, false);
+        $("#game-name").on('mousedown', onMouseDown, false);
+        $("#game-name").on('tap', onMouseDown, false);
 
-		// if (window.DeviceOrientationEvent) {
-		// 	window.addEventListener('deviceorientation', deviceOrientationHandler, false);
-		// }
-
-		//init audio
+        //初始化音效
 		if (WRConfig.playSound) {
 			sndPickup = new Howl({
 				src: ["res/audio/point.mp3"]
@@ -101,12 +81,9 @@ var WRMain = function () {
 				src: ["res/audio/rouet.mp3"],
 				loop: true
 			});
-			$("#music-toggle").on("click", toggleMusic);
-			$("#music-toggle").on("tap", toggleMusic);
 		}
 
-		//init 3D
-
+		//初始化渲染器、场景和相机
 		var size = 800;
 		camera = new THREE.PerspectiveCamera(75, 8 / 6, 1, 10000);
 		camera.position.z = WRConfig.FLOOR_DEPTH / 2 - 300;
@@ -118,6 +95,11 @@ var WRMain = function () {
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		renderer.setClearColor(bkgndColor, 1);
 		$("#container").append(renderer.domElement);
+
+		if (WRConfig.showDebug) {
+			controls = new THREE.OrbitControls(camera, renderer.domElement);
+			controls.update();
+		}
 
 		//FX
 		var renderPass = new THREE.RenderPass(scene, camera);
@@ -138,7 +120,7 @@ var WRMain = function () {
 
 		animate();
 
-		//fade in
+		//淡入
 		TweenMax.fromTo(fxParams, 1, {
 			brightness: -1
 		}, {
@@ -157,22 +139,8 @@ var WRMain = function () {
 			autoAlpha: 1,
 			delay: 1
 		});
-		TweenMax.fromTo($('#music-toggle'), 1, {
-			autoAlpha: 0
-		}, {
-			autoAlpha: 1,
-			delay: 1
-		});
 
 		$("#preloader").css("display", "none");
-
-		//preload splash page images
-		var img1 = new Image();
-		img1.src = "res/img/xmas-splash.png";
-		var img2 = new Image();
-		img2.src = "res/img/xmas-best.png";
-		var img3 = new Image();
-		img3.src = "res/img/xmas-wipeout.png";
 
 	}
 
@@ -197,11 +165,6 @@ var WRMain = function () {
 		var w = window.innerWidth;
 		var h = window.innerHeight;
 
-		//handle retina screens
-		// var dpr = 1;
-		// if (window.devicePixelRatio !== undefined) {
-		// 	dpr = window.devicePixelRatio;
-		// }
 
 		composer.setSize(w, h);
 		renderer.setSize(w, h);
@@ -216,23 +179,6 @@ var WRMain = function () {
 
 		$("#splash").css("left", (w - splashSize) / 2 + "px");
 		$("#splash").css("top", (h - splashSize) / 2 + "px");
-
-		//splash page resizing
-		if (splashMode === 0) {
-			if (isMobile) {
-				$('#prompt-big').css("font-size", splashSize * 0.05 + "px");
-				$('#prompt-small').css("font-size", splashSize * 0.06 + "px");
-			} else {
-				$('#prompt-big').css("font-size", splashSize * 0.06 + "px");
-				$('#prompt-small').css("font-size", splashSize * 0.04 + "px");
-
-			}
-		} else if (splashMode == 1) {
-			$('#prompt-big').css("font-size", splashSize * 0.09 + "px");
-		} else {
-			$('#prompt-big').css("font-size", splashSize * 0.08 + "px");
-			$('#prompt-small').css("font-size", splashSize * 0.04 + "px");
-		}
 
 	}
 
@@ -260,7 +206,7 @@ var WRMain = function () {
 
 		if (WRConfig.playSound) sndCollide.play();
 
-		//display score
+		//显示分数
 		TweenMax.to($('#score-text'), 0.1, {
 			autoAlpha: 0
 		});
@@ -286,16 +232,14 @@ var WRMain = function () {
 		if (score > hiScore) {
 			splashMode = 1;
 			hiScore = score;
-			$('#splash').css('background-image', 'url(res/img/xmas-best.png)');
-			$('#prompt-big').text("SCORE: " + score);
+			$('#prompt-big').text("新纪录！本次得分: " + score);
 			$('#prompt-small').css('display', 'none');
 			$('#prompt-big').css("margin-top", "10%");
 
 		} else {
 			splashMode = 2;
-			$('#splash').css('background-image', 'url(res/img/xmas-wipeout.png)');
-			$('#prompt-big').text("SCORE: " + score);
-			$('#prompt-small').text("BEST SCORE: " + hiScore);
+			$('#prompt-big').text("本次得分: " + score);
+			$('#prompt-small').text("历史最佳分数: " + hiScore);
 			$('#prompt-small').css('display', 'block');
 			$('#prompt-big').css("margin-top", "8%");
 			$('#prompt-small').css("margin-top", "2%");
@@ -307,6 +251,9 @@ var WRMain = function () {
 	}
 
 	function onGameStart() {
+        TweenMax.to($('#game-name'), 0.3, {
+            autoAlpha: 0
+        });
 		TweenMax.to($('#splash'), 0.3, {
 			autoAlpha: 0
 		});
@@ -352,8 +299,6 @@ var WRMain = function () {
 		superPass.uniforms.brightness.value = fxParams.brightness;
 		composer.render(0.1);
 
-		//WRMain.trace( WRGame.getSpeed());
-
 	}
 
 	//INPUT HANDLERS
@@ -397,17 +342,14 @@ var WRMain = function () {
 		lastEvent = null;
 
 		switch (event.keyCode) {
-			case 39:
-				/* RIGHT */
+			case 39://右键
 				WRGame.setRightDown(false);
 				break;
-			case 37:
-				/* LEFT */
+			case 37://左键
 				WRGame.setLeftDown(false);
 				break;
 		}
 
-		//endSlide();
 	}
 
 	function onKeyDown(event) {
@@ -423,12 +365,10 @@ var WRMain = function () {
 		}
 
 		switch (event.keyCode) {
-			case 39:
-				/* RIGHT */
+			case 39://右键
 				WRGame.setRightDown(true);
 				break;
-			case 37:
-				/* LEFT */
+			case 37://左键
 				WRGame.setLeftDown(true);
 				break;
 
@@ -448,14 +388,6 @@ var WRMain = function () {
 		}
 	}
 
-	// function deviceOrientationHandler(eventData) {
-	// 	if (eventData.beta === null) return;
-	// 	var cuttoff = 5;
-	// 	var tiltedRight = eventData.beta > cuttoff;
-	// 	var tiltedLeft = eventData.beta < -cuttoff;
-	// 	WRGame.setRightDown(tiltedRight);
-	// 	WRGame.setLeftDown(tiltedLeft);
-	// }
 
 	return {
 		init: init,
