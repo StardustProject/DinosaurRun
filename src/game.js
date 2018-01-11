@@ -49,17 +49,17 @@ var WRGame = function () {
 		//灯光
 
 		//户外光照 HemisphereLight(skyColorHex, groundColorHex, intensity)
-		var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x000000, 0.6);
+		var hemisphereLight = new THREE.HemisphereLight(0x30317, 0xBBBBBB, 0.6);
 		WRMain.getScene().add(hemisphereLight);
 		hemisphereLight.position.y = 300;
 
 		//中心光（点光源）
-		var centerLight = new THREE.PointLight(0xFFFFFF, 0.8, 4500);
+		var centerLight = new THREE.PointLight(0xBBBBBB, 0.8, 4500);
 		WRMain.getScene().add(centerLight);
 		centerLight.position.z = WRConfig.FLOOR_DEPTH / 4;
 		centerLight.position.y = 500;
 		//前向光（点光源）
-		var frontLight = new THREE.PointLight(0xFFFFFF, 1, 2500);
+		var frontLight = new THREE.PointLight(0xBBBBBB, 1, 2500);
 		WRMain.getScene().add(frontLight);
 		frontLight.position.z = WRConfig.FLOOR_DEPTH / 2;
 
@@ -71,7 +71,7 @@ var WRGame = function () {
 
 		var floorMaterial = new THREE.MeshLambertMaterial({
 			color: 0xCCCCCC, //diffuse
-			emissive: 0x000000,
+			emissive: 0x996600,
 			shading: THREE.FlatShading,
 			side: THREE.DoubleSide,
 		});
@@ -263,6 +263,11 @@ var WRGame = function () {
 
 	}
 
+    /*
+         * 刘晨瑶
+         * 2018/1/10
+         * 构建地图元素
+         */
 
 	function makeTree(scale, materialID) {
 
@@ -334,6 +339,12 @@ var WRGame = function () {
 
 	}
 
+
+    /*
+     * 刘晨瑶
+     * 2018/1/10
+     * 游戏效果
+     */
 	function animate() {
 
 

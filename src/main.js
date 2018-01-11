@@ -2,13 +2,11 @@
 //全局设置
 var WRConfig = {
 
-	//debug toggles
 	playSound: true,
 	playMusic: true,
 	hitDetect: true,
 	showDebug: true,
 
-	//const dimensions
 	FLOOR_WIDTH: 3600, //地板宽度 x方向
 	FLOOR_DEPTH: 7200, //地板深度 z方向
 	MOVE_STEP: 500 //刷新一帧之前地板在z方向移动距离
@@ -19,7 +17,6 @@ var WRMain = function () {
 
 	var camera, scene, renderer, controls;
 
-	//FX
 	var composer;
 	var superPass;
 	var hueTime = 0;
@@ -43,7 +40,7 @@ var WRMain = function () {
 	var bkgndColor = 0x061837;
 	var isMobile = false;
 
-	var splashMode = 0; //0->2 indicating which splash page is showing
+	var splashMode = 0;
 	var isFirstGame = true;
 
 	function init() {
@@ -58,28 +55,15 @@ var WRMain = function () {
 			$("#container").append(stats.domElement);
 		}
 
-		isMobile = !!('ontouchstart' in window); //true for android or ios, false for MS surface
-
-		if (isMobile) {
-			$("#prompt-small").text("Tap to move left or right");
-			$("#info").html("Built with Love by <a href='http://www.airtight.cc'>Airtight</a>.");
-		}
-
-		//INIT CONTROLS
-		$("#container").on('touchstart', onTouchStart, false);
-		$("#container").on('touchend', onTouchEnd, false);
-
+		//初始化玩家控制操作
 		$(document).on('keydown', onKeyDown, false);
 		$(document).on('keyup', onKeyUp, false);
 		$("#splash").on('mousedown', onMouseDown, false);
 		$("#splash").on('tap', onMouseDown, false);
         $("#game-name").on('mousedown', onMouseDown, false);
         $("#game-name").on('tap', onMouseDown, false);
-		// if (window.DeviceOrientationEvent) {
-		// 	window.addEventListener('deviceorientation', deviceOrientationHandler, false);
-		// }
 
-		//init audio
+        //初始化音效
 		if (WRConfig.playSound) {
 			sndPickup = new Howl({
 				src: ["res/audio/point.mp3"]
@@ -99,8 +83,7 @@ var WRMain = function () {
 			});
 		}
 
-		//init 3D
-
+		//初始化渲染器、场景和相机
 		var size = 800;
 		camera = new THREE.PerspectiveCamera(75, 8 / 6, 1, 10000);
 		camera.position.z = WRConfig.FLOOR_DEPTH / 2 - 300;
@@ -156,22 +139,8 @@ var WRMain = function () {
 			autoAlpha: 1,
 			delay: 1
 		});
-		TweenMax.fromTo($('#music-toggle'), 1, {
-			autoAlpha: 0
-		}, {
-			autoAlpha: 1,
-			delay: 1
-		});
 
 		$("#preloader").css("display", "none");
-
-		//preload splash page images
-		var img1 = new Image();
-		 img1.src = "res/img/xmas-splash.png";
-		var img2 = new Image();
-		img2.src = "res/img/xmas-best.png";
-		var img3 = new Image();
-		 img3.src = "res/img/xmas-wipeout.png";
 
 	}
 
@@ -196,11 +165,6 @@ var WRMain = function () {
 		var w = window.innerWidth;
 		var h = window.innerHeight;
 
-		//handle retina screens
-		// var dpr = 1;
-		// if (window.devicePixelRatio !== undefined) {
-		// 	dpr = window.devicePixelRatio;
-		// }
 
 		composer.setSize(w, h);
 		renderer.setSize(w, h);
@@ -215,23 +179,6 @@ var WRMain = function () {
 
 		$("#splash").css("left", (w - splashSize) / 2 + "px");
 		$("#splash").css("top", (h - splashSize) / 2 + "px");
-
-		//splash page resizing
-		if (splashMode === 0) {
-			if (isMobile) {
-				$('#prompt-big').css("font-size", splashSize * 0.05 + "px");
-				$('#prompt-small').css("font-size", splashSize * 0.06 + "px");
-			} else {
-				$('#prompt-big').css("font-size", splashSize * 0.06 + "px");
-				$('#prompt-small').css("font-size", splashSize * 0.04 + "px");
-
-			}
-		} else if (splashMode == 1) {
-			$('#prompt-big').css("font-size", splashSize * 0.09 + "px");
-		} else {
-			$('#prompt-big').css("font-size", splashSize * 0.08 + "px");
-			$('#prompt-small').css("font-size", splashSize * 0.04 + "px");
-		}
 
 	}
 
@@ -285,14 +232,12 @@ var WRMain = function () {
 		if (score > hiScore) {
 			splashMode = 1;
 			hiScore = score;
-			//$('#splash').css('background-image', 'url(res/img/xmas-best.png)');
 			$('#prompt-big').text("新纪录！本次得分: " + score);
 			$('#prompt-small').css('display', 'none');
 			$('#prompt-big').css("margin-top", "10%");
 
 		} else {
 			splashMode = 2;
-			//$('#splash').css('background-image', 'url(res/img/xmas-wipeout.png)');
 			$('#prompt-big').text("本次得分: " + score);
 			$('#prompt-small').text("历史最佳分数: " + hiScore);
 			$('#prompt-small').css('display', 'block');
@@ -353,8 +298,6 @@ var WRMain = function () {
 		superPass.uniforms.hue.value = hue;
 		superPass.uniforms.brightness.value = fxParams.brightness;
 		composer.render(0.1);
-		
-		//WRMain.trace( WRGame.getSpeed());
 
 	}
 
