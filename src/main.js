@@ -47,6 +47,7 @@ var WRMain = function () {
 
 		WRConfig.showDebug = window.location.href.indexOf("?dev") > -1;
 
+		//性能监视器
 		if (WRConfig.showDebug) {
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
@@ -75,7 +76,6 @@ var WRMain = function () {
 				src: ["res/audio/best.mp3"]
 			});
 		}
-
 		if (WRConfig.playMusic) {
 			sndMusic = new Howl({
 				src: ["res/audio/rouet.mp3"],
@@ -144,17 +144,6 @@ var WRMain = function () {
 
 	}
 
-	function toggleMusic() {
-
-		$(this).toggleClass("off");
-
-		if ($(this).hasClass("off")) {
-			sndMusic.mute();
-		} else {
-			sndMusic.unmute();
-		}
-
-	}
 
 	$(window).resize(function () {
 		resize();
@@ -260,9 +249,6 @@ var WRMain = function () {
 		TweenMax.to($('#info'), 0.3, {
 			autoAlpha: 0
 		});
-		TweenMax.to($('#music-toggle'), 0.3, {
-			autoAlpha: 0
-		});
 		TweenMax.to($('#score-text'), 0.3, {
 			autoAlpha: 1,
 			delay: 0.3
@@ -284,7 +270,7 @@ var WRMain = function () {
 			stats.update();
 		}
 
-		//faster = more hue amount and faster shifts
+		//刷新速度
 		var hueAmount;
 		if (WRGame.getSpeed() < 0.5) {
 			hueAmount = 0;
@@ -301,42 +287,7 @@ var WRMain = function () {
 
 	}
 
-	//INPUT HANDLERS
-	function onTouchStart(event) {
-
-		if (!WRGame.getPlaying() && WRGame.getAcceptInput()) {
-			onGameStart();
-		}
-
-		for (var i = 0; i < event.touches.length; i++) {
-
-			event.preventDefault();
-
-			var xpos = event.touches[i].pageX;
-
-			if (xpos > window.innerWidth / 2) {
-				WRGame.setRightDown(true);
-			} else {
-				WRGame.setLeftDown(true);
-			}
-		}
-	}
-
-	function onTouchEnd(event) {
-
-		for (var i = 0; i < event.changedTouches.length; i++) {
-
-			event.preventDefault();
-			var xpos = event.changedTouches[i].pageX;
-
-			if (xpos > window.innerWidth / 2) {
-				WRGame.setRightDown(false);
-			} else {
-				WRGame.setLeftDown(false);
-			}
-		}
-	}
-
+	//玩家输入控制
 	function onKeyUp(event) {
 
 		lastEvent = null;
