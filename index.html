@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>Dinosaur Run!</title>
+	<title>Monster Run!</title>
 	<meta charset="utf-8">
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -11,11 +11,11 @@
 </head>
 
 <body>
-	<div id="game-name">Dinosaur Run!</div>
+	<div id="game-name">Monster Run!</div>
 	<div id="splash">
 		<div id="prompt">
-			<div id="prompt-big">在黎明来临前收集水晶！</div>
-			<div id="prompt-small">使用左右键控制移动</div>
+			<div id="prompt-big">化身一只魔鬼，在黎明来临前收集水晶！</div>
+			<div id="prompt-small">使用左右键控制移动，网址加 ?dev 参数可以用鼠标调整相机</div>
 		</div>
 	</div>
 	<div id="debug-text"></div>
@@ -30,13 +30,16 @@
 	<script src="lib/ShaderPass.js"></script>
 	<script src="lib/CopyShader.js"></script>
 	<script src="lib/MaskPass.js"></script>
+	<script src="lib/OrbitControls.js"></script>
+	<script src="lib/dat.gui.min.js"></script>
 	<script src="lib/stats.min.js"></script>
+
 	<script src="lib/atutil.js"></script>
 	<script src="lib/zepto.min.js"></script>
 	<script src="lib/ImprovedNoise.js"></script>
 	<script src="lib/TweenMax.min.js"></script>
 	<script src="lib/howler.core.min.js"></script>
-	<script type="text/javascript" src="lib/dat.gui.js"></script>
+
 	<!--js源码-->
 	<script src="src/main.js"></script>
 	<script src="src/game.js"></script>
