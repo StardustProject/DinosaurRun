@@ -228,7 +228,6 @@ var WRGame = function () {
 
 		// begin
 		var controls = new function () {
-			this.hemisphere = true;
 			this.groundColor = 0x00ff00;
 			this.skyColor = 0x0000ff;
 			this.intensity = 0.6;
@@ -236,15 +235,7 @@ var WRGame = function () {
 		};
 
 		var gui = new dat.GUI();
-
-		gui.add(controls, 'hemisphere').onChange(function (e) {
-
-			if (!e) {
-				hemisphereLight.intensity = 0;
-			} else {
-				hemisphereLight.intensity = controls.intensity;
-			}
-		});
+		
 		gui.addColor(controls, 'groundColor').onChange(function (e) {
 			hemisphereLight.groundColor = new THREE.Color(e);
 		});
